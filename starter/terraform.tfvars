@@ -13,7 +13,7 @@ license_model="__TO_FILL__"
 compartment_ocid="__TO_FILL__"
 
 # RAG Storage 26ai
-# rag_storage="db26ai"
+rag_storage="db26ai"
 # vault_ocid="__TO_FILL__"
 # vault_key_ocid="__TO_FILL__"
 
