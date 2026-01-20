@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: starter-ui-ingress
+  name: ##TF_VAR_prefix##-ui-ingress
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$2   
     # nginx.ingress.kubernetes.io/affinity: "cookie"   
@@ -11,10 +11,11 @@ spec:
   rules:
     - http:    
         paths:
-          - path: /starter(/|$)(.*)
+          - path: /oke(/|$)(.*)
             pathType: ImplementationSpecific
             backend:
               service:
-                name: starter-ui-service
+                name: ##TF_VAR_prefix##-ui-service
                 port:
                   number: 80
+                  

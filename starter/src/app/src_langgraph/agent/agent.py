@@ -13,6 +13,7 @@ import oci_openai
 
 COMPARTMENT_OCID = os.getenv("TF_VAR_compartment_ocid")
 REGION = os.getenv("TF_VAR_region")
+MCP_SERVER_URL = os.getenv("MCP_SERVER_URL")
 
 # auth = oci_openai.OciInstancePrincipalAuth()
 # llm = ChatOpenAI(
@@ -28,9 +29,11 @@ REGION = os.getenv("TF_VAR_region")
 llm = ChatOCIGenAI(
     auth_type="INSTANCE_PRINCIPAL",
     model_id="openai.gpt-oss-120b",
+    # model_id="meta.llama-4-scout-17b-16e-instruct",
+    # model_id="cohere.command-a-03-2025",
     service_endpoint="https://inference.generativeai."+REGION+".oci.oraclecloud.com",
-#    model_id="xai.grok-4-fast-reasoning",
-#    service_endpoint="https://inference.generativeai.us-chicago-1.oci.oraclecloud.com",
+    # model_id="xai.grok-4-fast-reasoning",
+    # service_endpoint="https://inference.generativeai.us-chicago-1.oci.oraclecloud.com",
     compartment_id=COMPARTMENT_OCID,
     is_stream=True,
     model_kwargs={"temperature": 0}
@@ -65,7 +68,7 @@ async def init( agent_name, prompt, tools_list, callback_handler=None ) -> State
                 {
                     "McpServerRag": {
                         "transport": "streamable_http",
-                        "url": "http://localhost:2025/mcp",                     
+                        "url": MCP_SERVER_URL,                     
                     },
                 },
                 tool_interceptors=[inject_user_context],
@@ -76,7 +79,7 @@ async def init( agent_name, prompt, tools_list, callback_handler=None ) -> State
             # Filter tools.
             tools_filtered = []
             for tool in tools:
-                if tool.name in tools_list:
+                if tools_list==None or tool.name in tools_list:
                     tools_filtered.append( tool )
             print( "-- tools_filtered ---------------------------------------------------")
             pprint.pprint( tools_filtered )
@@ -106,8 +109,7 @@ prompt_rag = """You are a research agent.
             - Respond ONLY with the results of your work, do NOT include ANY other text.
             """
 
-agent_rag = asyncio.run(init("agent_rag", prompt_rag,
-            ["search","list_documents","get_document_summary","get_document_by_path"]))
+agent_rag = asyncio.run(init("agent_rag", prompt_rag, None))
 
 prompt_sr = """You are a support agent.
             INSTRUCTIONS:

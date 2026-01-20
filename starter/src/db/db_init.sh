@@ -112,16 +112,6 @@ CREATE TABLE SUPPORT_SR (
 exit;
 EOF
 
-sqlcl/bin/sql APEX_APP/$DB_PASSWORD@DB @support_table.sql
-
-# Import the tables
-/usr/lib/oracle/23/client64/bin/sqlldr APEX_APP/$DB_PASSWORD@DB CONTROL=support_owner.ctl
-/usr/lib/oracle/23/client64/bin/sqlldr APEX_APP/$DB_PASSWORD@DB CONTROL=support_sr.ctl
-/usr/lib/oracle/23/client64/bin/sqlldr APEX_APP/$DB_PASSWORD@DB CONTROL=ai_eval_question_answer.ctl
-
-sqlcl/bin/sql $DB_USER/$DB_PASSWORD@DB @ras_admin.sql
-sqlcl/bin/sql APEX_APP/$DB_PASSWORD@DB @ras_apex_app.sql
-
 # Store the config in APEX
 sqlcl/bin/sql APEX_APP/$DB_PASSWORD@DB <<EOF
 begin
@@ -145,7 +135,18 @@ end;
 exit;
 EOF
 
-if [ "$TF_VAR_advanced" == "true" ]; then
+# Support table
+sqlcl/bin/sql APEX_APP/$DB_PASSWORD@DB @support_table.sql
+
+# Import the tables
+/usr/lib/oracle/23/client64/bin/sqlldr APEX_APP/$DB_PASSWORD@DB CONTROL=support_owner.ctl
+/usr/lib/oracle/23/client64/bin/sqlldr APEX_APP/$DB_PASSWORD@DB CONTROL=support_sr.ctl
+/usr/lib/oracle/23/client64/bin/sqlldr APEX_APP/$DB_PASSWORD@DB CONTROL=ai_eval_question_answer.ctl
+
+sqlcl/bin/sql $DB_USER/$DB_PASSWORD@DB @ras_admin.sql
+sqlcl/bin/sql APEX_APP/$DB_PASSWORD@DB @ras_apex_app.sql
+
+if [ "$TF_VAR_orcl_db_sse" == "true" ]; then
 
 # ORCL_DB_SSE (Micronaut)
 cat > orcl_db_sse.sql << EOF 
