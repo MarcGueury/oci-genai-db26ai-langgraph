@@ -27,7 +27,7 @@ MCP_SERVER_URL = os.getenv("MCP_SERVER_URL")
 # )
 
 llm = ChatOCIGenAI(
-    auth_type="INSTANCE_PRINCIPAL",
+    auth_type="API_KEY" if "LIVELABS" in os.environ else "INSTANCE_PRINCIPAL",
     model_id="openai.gpt-oss-120b",
     # model_id="meta.llama-4-scout-17b-16e-instruct",
     # model_id="cohere.command-a-03-2025",
@@ -60,8 +60,8 @@ async def inject_user_context(
 async def init( agent_name, prompt, tools_list, callback_handler=None ) -> StateGraph:
 
     # Waiting is important, since after reboot the MCP server could start afterwards.
-    delay = 5
-    for attempt in range(1, 10):
+    delay = 10
+    for attempt in range(1, 30):
         try:
             print(f"Connecting to MCP {attempt}...")
             client = MultiServerMCPClient(

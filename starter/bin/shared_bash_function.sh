@@ -422,9 +422,7 @@ is_deploy_compute() {
   fi
 }
 
-livelabs_green_button() {
-  # Lot of tests to be sure we are in an Green Button LiveLabs
-  # compartment_ocid still undefined ? 
+detect_livelabs() {
   if grep -q 'compartment_ocid="__TO_FILL__"' $PROJECT_DIR/terraform.tfvars; then
     # vnc_ocid still undefined ? 
     if [ "$TF_VAR_vcn_ocid" != "__TO_FILL__" ]; then
@@ -443,6 +441,15 @@ livelabs_green_button() {
     else
       return
     fi
+    export LIVELABS="true"
+  fi  
+}
+
+livelabs_green_button() {
+  # Lot of tests to be sure we are in an Green Button LiveLabs
+  # compartment_ocid still undefined ? 
+  detect_livelabs
+  if [ "$LIVELABS" == "true" ]; then
     get_user_details
     # OCI User name format ? 
     if [[ $TF_VAR_username =~ ^LL.*-USER$ ]]; then
@@ -481,7 +488,8 @@ livelabs_green_button() {
       export TF_VAR_app_subnet_ocid=$TF_VAR_subnet_ocid
       export TF_VAR_db_subnet_ocid=$TF_VAR_subnet_ocid
     fi  
-    
+    sed -i "s&license_model=\"__TO_FILL__\"&license_model=\"LICENSE_INCLUDED\"&" $PROJECT_DIR/terraform.tfvars
+
     # LiveLabs support only E4 Shapes
     sed -i '/compartment_ocid=/a\instance_shape="VM.Standard.E4.Flex"' $PROJECT_DIR/terraform.tfvars
     export TF_VAR_instance_shape=VM.Standard.E4.Flex
